@@ -1,0 +1,59 @@
+\chapter{Topic models and turnovers}
+
+\section{LDA}
+To perform topic modeling, I use the Python package \texttt{gensim}, which contains \texttt{models.wrappers.ldamallet}, a wrapper for Latent Dirichlet Allocation (LDA) from MALLET, a Java topic modeling toolkit. The module uses an optimized version of collapsed Gibbs sampling from MALLET. MALLET (Machine Learning for Language Toolkit) is a package for several machine learning applications to text, such as statistical natural language processing, document classification and clustering. LDA is the most commonly used topic modeling method. \enquote{Latent} refers to the concept of latent distributions in the model, and \enquote{Dirichlet} is the name of the most common used prior distribution, named after the German mathematician Johann Dirichlet (1805-1859). It consists of a nested multilevel structure, in which the following three levels need to be distinguished:\autocites[995]{blei_latent_nodate}{blei_probabilistic_2010}
+\begin{itemize}
+	\item A \textit{word} is an item from a vocabulary indexed by \{$1,...,V$\}. Words are represented using unit-basis vectors that have a single component equal to one and all other components equal to zero. Thus, using superscripts to denote components, the \textit{v}th word in the vocabulary is represented by a \textit{V}-vector \textit{w} such that $w^{v} = 1$ and $w^{u} = 0$ for $u \neq v$.
+	\item A \textit{document} is a sequence of \textit{N} words denoted by \textit{d} $= (w_{1},w_{2},...,w_{N})$, where $w_{n}$ is the $n$th word in the sequence.
+	\item A \textit{corpus} is a collection of \textit{M} documents denoted by $D = \{\textit{d}_{1},\textit{d}_{2},...,\textit{d}_{M}\}$.
+\end{itemize}
+Furthermore, a \textit{topic} $\phi$ is a distribution over a fixed vocabulary of \textit{V} words. The words \textit{w} of each document \textit{d} will be associated with a mixture of \textit{K} distributions. \textit{K} stands for the number of topics you want the model to create, and is the only parameter that has to be fixed in advance.\footnote{There are also topic models which infer \textit{K} from data.} The probability of an individual word is the sum over all topics of the word's probability in a topic times the probability of a topic in the current document. The probability of a document is written as follows: \autocite[277]{karsdorp_humanities_2019}
+
+\begin{equation}
+p\left(\vec{w}_{d}\right)=\prod_{i}^{n_{d}} p\left(w_{d, i}\right)=\prod_{i}^{n_{d}} \sum_{k}^{K} \theta_{d, k} \operatorname{Categorical}\left(w_{d, i} | \vec{\phi}_{k}\right)
+\end{equation}
+
+\noindent where $\operatorname{Categorical}\left(x | \vec{\phi}_{k}\right)=\prod_{v}^{V} \phi_{k, v}^{x(v)}$. However, this is just the beginning. The equation above is a model of the words associated with a single document, but I need to model all \textit{N} words in the \textit{M} documents in my corpus \textit{D}. In this way I will be able to model the topological homogeneity which exists across documents. Furthermore, I need to allow each document to have distinct topic weights, since some documents will feature certain latent distributions more prominently than others. The following steps need to be taken:
+
+\begin{enumerate}
+	\item For each topic \textit{k}, sample a probability distribution $\phi_{k}$ from Dirichlet($\eta$).
+	\item For each document \textit{d}:
+	\begin{enumerate}
+		\item Sample a document-specific set of topic proportions, $\theta_{d}$, from a Dirichlet distribution with parameter $\alpha$.
+		\item For each word $w_{d,i}$ in document \textit{d}:
+		\begin{enumerate}
+		\item Sample a word-specific latent mixture component, $z_{d,i}$ from the document-specific topic proportions $\theta_{d}$.
+		\item Sample a word from the latent distribution, $w_{d,i} \sim \operatorname{Categorical}(\eta_{z_{d,i}})$.
+		\end{enumerate}
+	\end{enumerate}
+\end{enumerate}
+
+\noindent The probability of the entire corpus is then written as follows:
+
+\begin{equation}
+\begin{aligned} p\left(w_{1 : D} | \theta_{1 : D}, \phi_{1 : K}\right)=\prod_{d=1}^{D} p\left(w_{d}\right) &=\prod_{d=1}^{D} \prod_{i}^{n_{d}} p\left(w_{d, i} | \theta_{d}, \phi_{1 : k}\right) \\ &=\prod_{i}^{n_{d}} \sum_{k}^{K} \theta_{d, k} \operatorname{Categorical}\left(w_{d} | \phi_{k}\right) \end{aligned}
+\end{equation}
+\noindent The earlier mentioned three levels in a LDA representation (word, document, corpus) have their own variables. The parameters $\alpha$ and $\phi$ are corpus-level parameters, the variables $\theta_{d}$ are document-level variables and the variables $z_{d,i}$ and $w_{d,i}$ are word-level variables. The three-level-structure of LDA ensures that one document can be associated with multiple topics, not with just one. \autocite[997]{blei_latent_nodate} With LDA, a document collection is analyzed by examining the posterior distribution of the latent variables. Posterior inference means that the generative process is reversed several times. Conditioned on a corpus, the goal of posterior inference is to find the posterior distribution over alternative topical structures that generated its document.\autocite{blei_probabilistic_2010} Posterior modes of the topics $\phi_{1:K}$ identify corpus-wide patterns of words; posterior modes of the topic proportions $\theta_{d}$ identify how the $d$th document expresses those patterns; posterior modes of the topic assignments $z_{d,i}$ identify which topics the $n$th word of the $d$th document is associated with.\autocite{blei_probabilistic_2010}
+
+\section{Calculating turnover series}
+For the calculation of turnover profiles in the context of this study, I draw inspiration from a chapter on turnover in \textit{Humanities Data Analysis} (to be published) from Folgert Karsdorp, Mike Kestemont and Alan Riddel. They state that turnover \enquote{can be defined as the number of new names that enter a popularity-ranked list at position \textit{n} at a particular moment in time \textit{t}.}\autocite[126]{karsdorp_humanities_2019} To compute a turnover series, they distinguish the next three steps:
+
+\begin{quote}
+	first, we can calculate an annual popularity index, which contains all unique names of a particular year ranked according to their frequency of use in descending order. Subsequently, the popularity indexes can be put in chronological order, allowing us to compare the indexes for each year to the previous year. For each position in the ranked lists, we count the number of \enquote{shifts} in the ranking that have taken place between two consecutive years. This \enquote{number of shifts} is called the turnover. Computing the turnover for all time steps in our collections yields a turnover series.\autocite[126]{karsdorp_humanities_2019}
+\end{quote}
+
+\noindent This method can be applied to the subject of this research, although some preliminary steps need to be taken. The following procedure needs to be carried out:
+
+\begin{enumerate}
+	\item For each song in the corpus:
+	\begin{enumerate}
+		\item Calculate the topic distribution using MALLET.
+		\item Connect the year of print of the song to this topic distribution.
+	\end{enumerate}
+	\item Calculate an annual popularity index, containing all song topics, ranked according to their frequency of appearance in descending order.
+	\item Put the annual popularity indexes in chronological order, in order to compare the indexes for each year to the previous year.
+	\item For each position in the ranked lists, count the number of \enquote{shifts} in the ranking that have taken place between two consecutive years. This \enquote{number of shifts} is called the turnover.
+	\item Compute the turnover for all time steps, which yields a turnover series.
+\end{enumerate}
+
+\noindent In Chapter 8, I will carry out this procedure and see if a certain transmission bias can be derived from the shape of the turnover plot.

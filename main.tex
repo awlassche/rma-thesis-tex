@@ -1,0 +1,132 @@
+\documentclass[a4paper,12pt,openright,twoside,unknownkeysallowed]{book}
+\usepackage[backend=biber,notes,isbn=false,doi=false,url=false,note=false,archivePrefix=false,eprint=false]{biblatex-chicago}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{biblatex}
+\usepackage[british]{babel}
+\addbibresource{references.bib}
+\AtEveryBibitem{\clearlist{language}}
+\usepackage{titling}
+%\usepackage{chngcntr}
+\counterwithout{footnote}{chapter}
+\newcommand{\subtitle}[1]{%
+	\posttitle{%
+		\par\end{center}
+	\begin{center}\large#1\end{center}
+	\vskip0.5em}%
+}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\usepackage{csquotes}
+\usepackage{graphicx,subfigure}
+\graphicspath{{./images/}}
+\usepackage{booktabs}
+\usepackage{verbatim}
+\usepackage{comment}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{rotating}
+\usepackage{caption}
+\usepackage[titletoc]{appendix}
+\usepackage{epigraph}
+
+\usepackage{makecell}
+\usepackage{longtable}
+\usepackage[nottoc,numbib]{tocbibind}
+
+\renewcommand\theadalign{bc}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Python,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+\frontmatter
+\begin{document}
+	%\pagenumbering{roman}
+	\thispagestyle{empty}
+	\newpage
+	\vskip10cm
+	\begin{center}
+		\huge{Cultural Evolution in Dutch Early Modern Songs}
+		\vskip2mm
+		\LARGE{Topical Fluctuations in the Dutch Song Database (1550-1750)}
+		\vskip10mm
+		\Large{Alie Lassche}\\
+		\vskip2mm
+		\normalsize{3829065}
+
+		\normalsize
+	\end{center}
+	\vskip88mm
+	\begin{center}
+		\Large
+		Research Master's thesis Dutch literature and culture\\
+		Supervisor: prof. dr. Els Stronks\\
+		Date: \today\\
+		\includegraphics[width=8cm]{images/UUlogo}
+	\end{center}
+\chapter*{Summary}
+In this thesis, I use computational methods to investigate what the most popular topics in Dutch early modern songs are and how topical fluctuations in a diachronic corpus of Dutch songs relate to cultural-historical changes and contemporary theses in qualitative research on the role of literature in early modern centuries. I use a sample from the Dutch Song Database (hosted at the Meertens Institute), containing 43,772 songs from the period 1550-1750. To solve the problem of spelling variation in my corpus, I tested two tools to normalize the spelling of the words in my corpus. The first method I used was a tool in which modernization was performed by querying all words in the corpus using the INT Lexicon Service and replacing the words with the lemma resulting from the query. The other method I used was the semi-automatic VARiant Detector (VARD), which uses a normalized word list and a variant list to suggest or replace variant words with their normalized counterparts. The results of the VARD-tool turned out to be better than the results obtained with the INL-tool. I therefore continued my analysis with the VARD-normalized version of my corpus.
+
+To perform topic modeling, I used the MALLET wrapper in the Python package \texttt{gensim}. I tested several settings and subsequently let the model build fifty topics from my corpus. I assigned a subject to each topic, and by plotting them over time, I explored which topics were dominant at what time. Furthermore, I distilled four claims about the roles of literature in early modern centuries from qualitative research on early modern literature. With my results obtained with quantitative methods, I tested whether these claims were confirmed. The four theses on the roles of literature I tested, were the following:
+
+\begin{enumerate}
+	\item Literature and ideology: I showed how literature is seen as a propagator of an ideology and how this is the case for the literature of the Further Reformation.
+	\item Literature and poetics: I used the topics on Petrarchism to show how the Dutch literary tradition becomes more and more embedded in a Renaissance and classical tradition.
+	\item Literature and politics: The topic \textit{nation and country} made clear how literature and politics are closely related in times of political crises.
+	\item Literature and diversity: I showed how my used methods fall short in testing whether the groups of people involved in literature become more diverse over time. I did show how a growing variation appears in the most popular topics over time.
+\end{enumerate}
+
+\noindent I conclude this study with a reflection on the fields of cultural evolution, digital humanities and qualitative literary studies, stating that these three should function in addition to each other.
+
+\tableofcontents
+
+\mainmatter
+\include{./chapters/Introduction}
+\part{Theoretical framework}
+	\include{./chapters/Digital_humanities}
+	\include{./chapters/Cultural_evolution}
+\part{Methodology}
+	\include{./chapters/Corpus}
+	\include{./chapters/Spelling_normalization}
+	\include{./chapters/LDA}
+\part{Analysis and results}
+	\include{./chapters/Dominant_topics}
+	\include{./chapters/Roles_of_literature}
+\part{Conclusion}
+	\include{./chapters/Conclusion}
+
+\backmatter
+% bibliography, glossary and index would go here.
+\printbibliography[heading=bibintoc]
+\include{./chapters/appendix/stoplist_original_corpus}
+\include{./chapters/appendix/stoplist_INL_corpus}
+\include{./chapters/appendix/stoplist_VARD2_corpus}
+\include{./chapters/appendix/topics_original_corpus}
+\include{./chapters/appendix/topics_INL_corpus}
+\include{./chapters/appendix/topics_VARD2_corpus}
+\end{document}
